@@ -9,6 +9,14 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
+import org.springframework.web.bind.annotation.CrossOrigin;       //added for CORS
+import org.springframework.web.bind.annotation.RequestMethod;     //addes for CORS
+
+@CrossOrigin(
+    origins = "http://localhost:5173",
+    methods = {RequestMethod.GET, RequestMethod.POST},
+    allowedHeaders = "Content-Type"
+)
 @RestController
 @RequestMapping("/api/ideas")
 public class IdeaController {

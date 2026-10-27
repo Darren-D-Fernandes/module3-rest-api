@@ -1,32 +1,62 @@
-# Campus Idea Board API - Phase 1
+# Campus Idea Board 
 
 **Student Name:** Darren D. Fernandes  
 **Course:** INEW 2434 Advanced Web Programming  
-**Track:** Java Spring Boot Track  
+**Track:** Java Spring Boot Track + React Frontend Integration  
 
-A Java Spring Boot backend API designed to handle student-submitted campus club and event suggestions. This project serves as an organized, validated, and fully tested backend data provider.
+An interactive full-stack web application designed for students to propose, organize, and view campus clubs, academic ideas, and institutional enhancement events. This project bridges a functional React user interface with a validated, secure Java Spring Boot REST API backend layer.
 
-## How to Set Up and Run
+## Project Architecture & URLs
+The project is built as a split full-stack architecture where the user interface and data services run independently on separate local ports:
+* **Frontend Client UI:** Serves dynamic user layouts via Vite on strict port allocations at: `http://localhost:5173`
+* **Backend REST API:** Maps operations, handles validation, and serves JSON endpoints at: `http://localhost:8080`
 
-1. Ensure you have Java JDK 17 or higher and Apache Maven configured on your computer path variables.
-2. Open your terminal in the root directory of this project folder (where `pom.xml` lives).
-3. Execute the startup command to launch the live backend server:
-   ```sh
-   mvn spring-boot:run
-   ```
-4. The backend server will boot up and host locally on port 8080. You can verify the server connection by visiting the personalized greeting endpoint at: `http://localhost:8080/api/hello`.
+### REST API Endpoints (`/api/ideas`)
+* **GET `/api/ideas`**: Fetches all currently logged community submissions, returning an HTTP status of `200 OK`. If no records exist in active memory, an interactive empty-state message dynamically populates in the UI view.
+* **POST `/api/ideas`**: Submits a new text entry containing a unique title and category. Valid text payloads generate an HTTP status of `201 Created` along with a database-assigned tracking ID number. Malformed, empty, or spaces-only titles are rejected by both client-side rules and server-side interceptors with an explicit status code error of `400 Bad Request`.
+
+## Prerequisites
+- Java Development Kit (JDK 25.0.2)
+- Apache Maven
+- Node.js LTS Runtime environment
+
+## Operating Instructions
+
+### 1. Running the Backend Server
+Open your terminal inside the project root folder (where `pom.xml` lives) and run:
+```sh
+mvn spring-boot:run
+```
+The REST API will boot and actively listen on: `http://localhost:8080`
+
+### 2. Running the Frontend Server
+Open a second, concurrent terminal window, navigate into the frontend project directory, install local packages, and boot up the hot-reloading dev workspace:
+```sh
+cd frontend
+npm install
+npm run dev
+```
+The user interface will securely lock onto port allocations and serve at: `http://localhost:5173`
 
 ## Running Automated Test Suites
 
-To execute the automated safety net validations—including core memory unit tests and `MockMvc` API endpoint routing simulations—open a separate terminal window and run:
+### Backend Tests
+Execute core database memory unit checks and `MockMvc` endpoint routing simulations directly from the root project directory:
 ```sh
 mvn test
 ```
 
-## API Endpoint Documentation
+### Frontend Tests
+Execute isolated validation unit assertions checking for valid strings, empty entry rejections, and spaces-only blockages directly from the `frontend` folder:
+```sh
+node --test tests/validation.test.mjs
+```
 
-This backend exposes the following endpoint mappings under the base request URL path `/api/ideas`:
+### Production Build Compilation
+Compile and bundle static optimization deployment assets inside the `frontend` folder to guarantee codebase consistency:
+```sh
+npm run build
+```
 
-* **GET `/api/ideas`**: Fetches and reads the full array list of current campus ideas. It loads initially with two default seed suggestions and returns an HTTP status code of `200 OK`.
-* **POST `/api/ideas`**: Intercepts an incoming raw JSON payload body containing a `"title"` and a `"category"`. It automatically converts the keys into Java data structures, appends the submission into the in-memory array list store, and returns an HTTP status code of `201 Created` along with its uniquely assigned tracking ID number.
-  - *Data Contract & Validation:* String inputs are strictly evaluated. Requests will be blocked and return an explicit `400 Bad Request` status code error if any field is left blank, if titles exceed 80 characters, or if categories exceed 30 characters.
+## Data Persistence Behavior
+This integration phase utilizes a volatile, in-memory collection array store (`IdeaStore`). Data records are safely preserved during active client browser sessions and manual browser page refreshes. However, shutting down or restarting the Java application process completely flushes the volatile memory layer, resetting the data back to its default baseline state upon subsequent system loads.

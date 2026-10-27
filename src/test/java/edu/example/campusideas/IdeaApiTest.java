@@ -28,4 +28,12 @@ class IdeaApiTest {
 
         
     }
+
+
+    @Test
+    void spacesOnlyTitleReturnsBadRequest() throws Exception {
+        mvc.perform(post("/api/ideas").contentType(MediaType.APPLICATION_JSON)
+            .content("{\"title\":\"   \",\"category\":\"clubs\"}"))
+            .andExpect(status().isBadRequest());
+    }
 }
