@@ -19,17 +19,41 @@ The project is built as a split full-stack architecture where the user interface
 - Java Development Kit (JDK 25.0.2)
 - Apache Maven
 - Node.js LTS Runtime environment
+- Docker Desktop (for containerized API execution)
+
 
 ## Operating Instructions
 
-### 1. Running the Backend Server
+### 1. Running the Backend Server(Local Maven)
 Open your terminal inside the project root folder (where `pom.xml` lives) and run:
 ```sh
 mvn spring-boot:run
 ```
 The REST API will boot and actively listen on: `http://localhost:8080`
 
-### 2. Running the Frontend Server
+
+### 2. Running the Backend Server (Docker — Phase 2A)
+Ensure **Docker Desktop** is running and port `8080` is free locally. From the project root folder (where `Dockerfile` and `compose.yaml` live), run:
+
+* **Build and start the API container:**
+  ```sh
+  docker compose up -d --build
+  ```
+* **Verify container status and view logs:**
+  ```sh
+  docker compose ps
+  docker compose logs api
+  ```
+* **Stop and remove the API container:**
+  ```sh
+  docker compose down
+  ```
+The containerized REST API is accessible at `http://localhost:8080` (mapped to host port `8080` via `127.0.0.1:8080:8080`), including:
+* Welcome route: `http://localhost:8080/api/hello`
+* Ideas endpoint: `http://localhost:8080/api/ideas`
+
+
+### 3. Running the Frontend Server
 Open a second, concurrent terminal window, navigate into the frontend project directory, install local packages, and boot up the hot-reloading dev workspace:
 ```sh
 cd frontend
@@ -37,6 +61,7 @@ npm install
 npm run dev
 ```
 The user interface will securely lock onto port allocations and serve at: `http://localhost:5173`
+
 
 ## Running Automated Test Suites
 
@@ -60,3 +85,11 @@ npm run build
 
 ## Data Persistence Behavior
 This integration phase utilizes a volatile, in-memory collection array store (`IdeaStore`). Data records are safely preserved during active client browser sessions and manual browser page refreshes. However, shutting down or restarting the Java application process completely flushes the volatile memory layer, resetting the data back to its default baseline state upon subsequent system loads.
+
+## Phase 2A: Docker Concepts & Reflection
+* **What is a Docker image?**  
+    A Docker image is basically a read-only, self-contained package/template that bundles the compiled application(`app.jar`), runtime environment(JRE), dependencies, and startup configurations needed to run the service across any machine.
+* **What is a Docker container?**  
+    Docker container is a live, isolated running instance created from the Docker image. They can be started, stopped and replaced independently without modifying the image.
+* **Why did your POST data disappear after replacing the container?**  
+    Right now the API stores ideas in a volatile RAM(`IdeaStore`) inside the Java process rather than an external storage or a Docker volume. Running the `docker compose down` and then `docker compose up -d` will terminate the old container and start a brand-new one clearing all local data and starting a new instance.
