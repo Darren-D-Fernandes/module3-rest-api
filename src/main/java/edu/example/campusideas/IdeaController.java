@@ -1,4 +1,5 @@
 package edu.example.campusideas;
+import java.sql.SQLException;
 import java.util.List;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -20,27 +21,32 @@ import org.springframework.web.bind.annotation.RequestMethod;     //addes for CO
 @RestController
 @RequestMapping("/api/ideas")
 public class IdeaController {
-    private final IdeaStore store;
-    public IdeaController(IdeaStore store) {
-        this.store = store;
+    private final IdeaRepository repository;
+
+    public IdeaController(IdeaRepository repository) {
+        this.repository = repository;
     }
     // TODO 2: Add the HTTP mapping for reading ideas.
     //Done
     @GetMapping 
-    public List<Idea> getIdeas() {
+    public List<Idea> getIdeas() throws SQLException {
         // TODO 3: Replace the placeholder with the store's read method.
         //Done
-        return store.findAll();
+        return repository.findAll();
     }
     // TODO 4: Add the HTTP mapping for creating an idea.
     //Done
     @PostMapping 
-    public ResponseEntity<Idea> createIdea(/* TODO 5: Add @Valid and @RequestBody here : Done*/ @Valid @RequestBody  IdeaRequest request) {
+    public ResponseEntity<Idea> createIdea(/* TODO 5: Add @Valid and @RequestBody here : Done*/ @Valid @RequestBody  IdeaRequest request) 
+    throws SQLException{
         // TODO 6: Use store.add(request) and return 201 Created with that Idea as the body.
         //Done
+        try{
 
-
-        Idea savedIdea = store.add(request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(savedIdea);
+            Idea savedIdea = repository.create(request.title(),request.category());
+            return ResponseEntity.status(HttpStatus.CREATED).body(savedIdea);
+        }catch(IllegalArgumentException ex){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, ex.getMessage());
+        }
     }
 }

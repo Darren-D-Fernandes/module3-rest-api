@@ -1,6 +1,9 @@
 package edu.example.campusideas;
+
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.api.Disabled;
+import java.nio.file.Path;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -9,11 +12,24 @@ import org.springframework.http.MediaType;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import static org.junit.jupiter.api.Assertions.fail;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
+
 // API/component test: exercises routing and JSON through MockMvc, without a live network server.
 @SpringBootTest
 @AutoConfigureMockMvc
 class IdeaApiTest {
+
+    @TempDir 
+    static Path tempDir;
+
+    @DynamicPropertySource 
+    static void registerDbPath(DynamicPropertyRegistry registry){
+        registry.add("app.db-path", () -> tempDir.resolve("api-test.db").toString());
+    }
+
     @Autowired private MockMvc mvc;
+
     @Test
     void validPostReturnsCreatedIdea() throws Exception {
         // Use mvc.perform(post("/api/ideas").contentType(MediaType.APPLICATION_JSON)

@@ -93,3 +93,17 @@ This integration phase utilizes a volatile, in-memory collection array store (`I
     Docker container is a live, isolated running instance created from the Docker image. They can be started, stopped and replaced independently without modifying the image.
 * **Why did your POST data disappear after replacing the container?**  
     Right now the API stores ideas in a volatile RAM(`IdeaStore`) inside the Java process rather than an external storage or a Docker volume. Running the `docker compose down` and then `docker compose up -d` will terminate the old container and start a brand-new one clearing all local data and starting a new instance.
+
+## Phase 2B: Docker API + SQLite
+### Database Configuration & Schema
+* **Local Database Path:** `data/ideas.db` (configured via `app.db-path=${DB_PATH:data/ideas.db}` in `application.properties`)
+* **Docker Database Path:** `/app/data/ideas.db` (set via `DB_PATH=/app/data/ideas.db` in `compose.yaml`)
+* **`ideas` Table Columns (`schema.sql`):**
+  * `id` (`INTEGER PRIMARY KEY`) — auto-generated unique identifier
+  * `title` (`TEXT NOT NULL CHECK(length(trim(title)) > 0)`) — non-blank idea title
+  * `category` (`TEXT NOT NULL CHECK(length(trim(category)) > 0)`) — non-blank idea category
+
+### How Persistence Works
+* **Table Creation:** On startup, the `IdeaRepository` constructor creates the target parent directory (`Files.createDirectories`) and executes `CREATE TABLE IF NOT EXISTS ideas (...)` via SQLite JDBC without deleting existing records.
+* **Docker Volume Preservation:** In `compose.yaml`, the named volume declaration (`volumes: ideas-data:`) and service mount (`ideas-data:/app/data`) store `/app/data/ideas.db` outside the container's temporary filesystem on the host machine.
+* **Why Data Disappeared in Assignment 1 vs. Now:** In Assignment 1 (Phase 2A), ideas were stored in volatile RAM (`IdeaStore`), so replacing the container wiped all records. Now, ideas are written to SQLite inside the mounted `ideas-data` Docker volume, so records remain intact across `docker compose down` and `docker compose up -d`.
